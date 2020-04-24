@@ -262,11 +262,11 @@ export class DraftComponent extends WorkSpace implements OnInit, AfterViewInit {
                     (data: ServerResponse) => {
                         this.showLoader = false;
                         this.draftList = this.removeContent(this.draftList, contentIds);
+                        this.toasterService.success(this.resourceService.messages.smsg.m0006);
                         // after delete if current page results are zero
                         if (this.draftList.length === 0) {
-                            this.fetchDrafts(this.config.appConfig.WORKSPACE.PAGE_LIMIT, this.pageNumber);
+                            this.fetchDrafts(this.config.appConfig.WORKSPACE.PAGE_LIMIT, 1);
                         }
-                        this.toasterService.success(this.resourceService.messages.smsg.m0006);
                     },
                     (err: ServerResponse) => {
                         this.showLoader = false;
