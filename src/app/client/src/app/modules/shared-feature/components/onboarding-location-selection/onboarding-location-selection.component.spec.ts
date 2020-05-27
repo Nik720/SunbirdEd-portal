@@ -130,7 +130,7 @@ describe('OnboardingLocationSelectionComponent', () => {
 
   it('should call enableSubmitButton', () => {
     component.userDetailsForm.setValue({ district: 'Nancy', state: 'Drew' });
-    spyOn(component.userDetailsForm, 'valueChanges').and.returnValue(of({}));
+    spyOn<any>(component.userDetailsForm, 'valueChanges').and.returnValue(of({}));
     component.enableSubmitButton();
     expect(component.enableSubmitBtn).toBe(true);
   });

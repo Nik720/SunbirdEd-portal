@@ -50,7 +50,7 @@ describe('UsageReportsComponent', () => {
   it('makes expected calls of ngOnInit and render the report ', () => {
     const usageService = TestBed.get(UsageService);
     component.slug = 'sunbird';
-    spyOn(document, 'getElementById').and.returnValue('sunbird');
+    spyOn<any>(document, 'getElementById').and.returnValue('sunbird');
     spyOn(component, 'renderReport').and.callThrough();
     spyOn(usageService, 'getData').and.returnValue(observableOf(mockChartData.configData));
     component.ngOnInit();
@@ -60,25 +60,25 @@ describe('UsageReportsComponent', () => {
     expect(component.reportMetaData).toBeDefined();
     expect(component.chartData.length).toBe(6);
   });
-  it('should call downloadCSV method ', () => {
-    const usageService = TestBed.get(UsageService);
-    const toasterService = TestBed.get(ToasterService);
-    component.slug = 'sunbird';
-    spyOn(document, 'getElementById').and.returnValue('sunbird');
-    spyOn(usageService, 'getData').and.returnValue(observableOf(mockChartData.configData));
-    spyOn(component, 'renderReport').and.callThrough();
-    spyOn(component, 'downloadCSV').and.callThrough();
-    spyOn(toasterService, 'error').and.callThrough();
-    component.ngOnInit();
-    component.downloadCSV('/reports/sunbird/daily_metrics.csv');
-    expect(usageService.getData).toHaveBeenCalled();
-    });
+    it('should call downloadCSV method ', () => {
+      const usageService = TestBed.get(UsageService);
+      const toasterService = TestBed.get(ToasterService);
+      component.slug = 'sunbird';
+      spyOn<any>(document, 'getElementById').and.returnValue('sunbird');
+      spyOn(usageService, 'getData').and.returnValue(observableOf(mockChartData.configData));
+      spyOn(component, 'renderReport').and.callThrough();
+      spyOn(component, 'downloadCSV').and.callThrough();
+      spyOn(toasterService, 'error').and.callThrough();
+      component.ngOnInit();
+      component.downloadCSV('/reports/sunbird/daily_metrics.csv');
+      expect(usageService.getData).toHaveBeenCalled();
+      });
 
     it('should call renderFiles method ', () => {
       const usageService = TestBed.get(UsageService);
       const toasterService = TestBed.get(ToasterService);
       component.slug = 'sunbird';
-      spyOn(document, 'getElementById').and.returnValue('sunbird');
+      spyOn<any>(document, 'getElementById').and.returnValue('sunbird');
       spyOn(usageService, 'getData').and.returnValue(observableOf(mockChartData.configData));
       spyOn(component, 'renderReport').and.callThrough();
       component.ngOnInit();

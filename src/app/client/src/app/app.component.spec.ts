@@ -73,9 +73,9 @@ describe('AppComponent', () => {
     spyOn(navigationHelperService, 'initialize').and.callFake(() => {});
     spyOn(telemetryService, 'initialize');
     spyOn(telemetryService, 'getDeviceId').and.callFake((cb) => cb('123'));
-    spyOn(document, 'querySelector').and.returnValue({ setAttribute: () => { }});
+    spyOn<any>(document, 'querySelector').and.returnValue({ setAttribute: () => { }});
     spyOn(Fingerprint2, 'constructor').and.returnValue({get: () => {}});
-    spyOn(document, 'getElementById').and.callFake((id) => {
+    spyOn<any>(document, 'getElementById').and.callFake((id) => {
       if (id === 'buildNumber') {
         return { value: '1.1.12.0' };
       }

@@ -178,7 +178,7 @@ describe('PublicCollectionPlayerComponent', () => {
       searchUrl: '/search',
       queryParams: { key: 'collection' }
     };
-    spyOn(component.navigationHelperService, 'getPreviousUrl').and.returnValue(previousUrl);
+    spyOn<any>(component.navigationHelperService, 'getPreviousUrl').and.returnValue(previousUrl);
     const router = TestBed.get(Router);
     expect(router.navigate).toBeDefined([previousUrl.searchUrl, previousUrl.queryParams]);
   });
@@ -187,7 +187,7 @@ describe('PublicCollectionPlayerComponent', () => {
     const previousUrl = {
       otherUrl: '/browse/play/collection/do_3123405048187617282365',
     };
-    spyOn(component.navigationHelperService, 'getPreviousUrl').and.returnValue(previousUrl);
+    spyOn<any>(component.navigationHelperService, 'getPreviousUrl').and.returnValue(previousUrl);
     const router = TestBed.get(Router);
     expect(router.navigate).toBeDefined([previousUrl.otherUrl]);
   });

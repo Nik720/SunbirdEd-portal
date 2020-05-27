@@ -62,7 +62,7 @@ describe('BatchCardComponent', () => {
 
   it('should set batchDetails', inject([Router],
     (route) => {
-      spyOn(component.clickEvent, 'emit').and.returnValue({});
+      spyOn<any>(component.clickEvent, 'emit').and.returnValue({});
       spyOn(component, 'onAction').and.callThrough();
       component.onAction(Response.successData);
       component.batch = Response.successData;

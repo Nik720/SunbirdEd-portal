@@ -75,6 +75,7 @@ describe('UtilService', () => {
     }));
 
   it('should have showAppPopUp to be false', inject([UtilService], (service: UtilService) => {
+    service.showAppPopUp = false;
     expect(service.showAppPopUp).toBeFalsy();
   }));
 
@@ -186,6 +187,8 @@ describe('UtilService', () => {
 
   it('should return given contentList with the updated hover data', inject([UtilService, ResourceService],
     (service: UtilService, resourceService: ResourceService) => {
+      resourceService.frmelmnts = resourceBundle.frmelmnts;
+      resourceService.messages = resourceBundle.messages;
       const listWithHoverData = service.addHoverData(contentList, true);
       expect(listWithHoverData[0].hoverData.actions[0].type).toEqual('download');
       expect(listWithHoverData[0].hoverData.actions[0].disabled).toEqual(true);
@@ -245,6 +248,8 @@ describe('UtilService', () => {
 
   it('should return  isAvailable true ', inject([UtilService, ResourceService],
     (service: UtilService, resourceService: ResourceService) => {
+      resourceService.frmelmnts = resourceBundle.frmelmnts;
+      resourceService.messages = resourceBundle.messages;
       const data = service.isDownloaded(contentListWithHoverData[0], 'DOWNLOADED');
       expect(data).toBeTruthy();
   }));

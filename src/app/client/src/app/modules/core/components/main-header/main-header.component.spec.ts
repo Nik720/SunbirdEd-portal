@@ -38,7 +38,7 @@ describe('MainHeaderComponent', () => {
   });
 
   it('should subscribe to user service', () => {
-    spyOn(document, 'getElementById').and.returnValue('true');
+    spyOn<any>(document, 'getElementById').and.returnValue('true');
     const userService = TestBed.get(UserService);
     const learnerService = TestBed.get(LearnerService);
     userService._authenticated = true;
@@ -49,7 +49,7 @@ describe('MainHeaderComponent', () => {
   });
 
   it('Should subscribe to tenant service and update logo and tenant name', () => {
-    spyOn(document, 'getElementById').and.returnValue('true');
+    spyOn<any>(document, 'getElementById').and.returnValue('true');
     const service = TestBed.get(TenantService);
     spyOn(service, 'get').and.returnValue(observableOf(mockUserData.tenantSuccess));
     service.getTenantInfo('Sunbird');
@@ -59,14 +59,14 @@ describe('MainHeaderComponent', () => {
   });
 
   it('Should not update logo unless tenant service returns it', () => {
-    spyOn(document, 'getElementById').and.returnValue('true');
+    spyOn<any>(document, 'getElementById').and.returnValue('true');
     component.ngOnInit();
     expect(component.tenantInfo.logo).toBeUndefined();
     expect(component.tenantInfo.titleName).toBeUndefined();
   });
 
   it('Should update the logo on initialization', () => {
-    spyOn(document, 'getElementById').and.returnValue('true');
+    spyOn<any>(document, 'getElementById').and.returnValue('true');
     const service = TestBed.get(TenantService);
     spyOn(service, 'get').and.returnValue(observableOf(mockUserData.tenantSuccess));
     service.getTenantInfo('Sunbird');

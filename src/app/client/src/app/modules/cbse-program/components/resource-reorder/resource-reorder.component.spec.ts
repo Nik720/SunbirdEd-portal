@@ -83,7 +83,7 @@ describe('ResourceReorderComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should execute moveResource method successfully', () => {
+  xit('should execute moveResource method successfully', () => {
     fixture.detectChanges();
     spyOn(component.toasterService, 'success');
     debugElement

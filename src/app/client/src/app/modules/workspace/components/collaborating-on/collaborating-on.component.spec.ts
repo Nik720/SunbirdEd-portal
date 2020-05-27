@@ -154,7 +154,7 @@ describe('CollaboratingOnComponent', () => {
   });
   it('should open  editor on edit icon click when status is not processing  ', inject([WorkSpaceService, Router],
     (workSpaceService, route, http) => {
-      spyOn(document, 'getElementById').and.returnValue('true');
+      spyOn<any>(document, 'getElementById').and.returnValue('true');
       const userService = TestBed.get(UserService);
       userService._userData$.next({ err: null, userProfile: Response.userData });
       spyOn(component, 'contentClick').and.callThrough();

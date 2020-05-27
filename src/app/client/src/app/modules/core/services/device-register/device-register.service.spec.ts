@@ -11,7 +11,7 @@ describe('DeviceRegisterService', () => {
         TestBed.configureTestingModule({
         imports: [HttpClientTestingModule, CoreModule, SharedModule.forRoot()],
         });
-        spyOn(document, 'getElementById').and.callFake((id) => {
+        spyOn<any>(document, 'getElementById').and.callFake((id) => {
             if (id === 'buildNumber') {
                 return { value: '1.9.0.1' };
             }

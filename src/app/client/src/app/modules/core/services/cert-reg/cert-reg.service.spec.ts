@@ -18,7 +18,7 @@ describe('CertRegService', () => {
 
   it('should fetch all certificates', () => {
     const certRegService: CertRegService = TestBed.get(CertRegService);
-    spyOn(certRegService, 'post').and.returnValue(observableOf({}));
+    spyOn<any>(certRegService, 'post').and.returnValue(observableOf({}));
     const params = {
       'request': {
         '_source': ['data.badge.issuer.name', 'pdfUrl', 'data.issuedOn', 'data.badge.name'],

@@ -72,7 +72,7 @@ describe('IdentifyAccountComponent', () => {
   }));
 
   beforeEach(() => {
-    spyOn(document, 'getElementById').and.returnValue({ value: '1234' });
+    spyOn<any>(document, 'getElementById').and.returnValue({ value: '1234' });
     fixture = TestBed.createComponent(IdentifyAccountComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

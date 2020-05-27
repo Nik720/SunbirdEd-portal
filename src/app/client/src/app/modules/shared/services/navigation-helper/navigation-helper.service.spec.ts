@@ -8,11 +8,7 @@ import { CacheService } from 'ng2-cache-service';
 import { UtilService } from '../util/util.service';
 
 class RouterStub {
-  // navigate = jasmine.createSpy('navigate');
-  public navigate() { }
-  // events: Observable<NavigationEnd>  = observableOf([
-  //   {id: 2, url: '/home', urlAfterRedirects: '/home', toString: () =>  'home' }
-  // ]);
+  navigate = jasmine.createSpy('navigate');
 }
 const fakeActivatedRoute = {
   'params': observableOf({ contentId: 'd0_33567325' }),

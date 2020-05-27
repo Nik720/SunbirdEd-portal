@@ -125,7 +125,7 @@ describe('EnrollBatchComponent', () => {
 
   it('should enroll to course on click of enroll button', () => {
     spyOn(courseBatchService, 'getEnrollToBatchDetails').and.callFake(() => of(fakeBatchDetails));
-    const courseBatchServiceSpy = spyOn(courseBatchService, 'enrollToCourse').and.callFake(() => of(''));
+    const courseBatchServiceSpy = spyOn<any>(courseBatchService, 'enrollToCourse').and.callFake(() => of({}));
     spyOnProperty(component.userService, 'userid', 'get').and.returnValue('d0d8a341-9637-484c-b871-0c27015af238');
     const fetchEnrolledCourseDataSpy = spyOn(component, 'fetchEnrolledCourseData');
     const telemetryLogEvent = spyOn(component, 'telemetryLogEvents');
@@ -175,7 +175,7 @@ describe('EnrollBatchComponent', () => {
 
   it('should auto enroll to course', () => {
     spyOn(courseBatchService, 'getEnrollToBatchDetails').and.callFake(() => of(fakeBatchDetails));
-    const courseBatchServiceSpy = spyOn(courseBatchService, 'enrollToCourse').and.callFake(() => of(''));
+    const courseBatchServiceSpy = spyOn<any>(courseBatchService, 'enrollToCourse').and.callFake(() => of(''));
     spyOnProperty(component.userService, 'userid', 'get').and.returnValue('d0d8a341-9637-484c-b871-0c27015af238');
     const fetchEnrolledCourseDataSpy = spyOn(component, 'fetchEnrolledCourseData');
     const telemetryLogEvent = spyOn(component, 'telemetryLogEvents');

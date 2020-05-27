@@ -48,7 +48,7 @@ describe('ExploreCurriculumCoursesComponent', () => {
   });
 
   it('should return empty data from search', () => {
-    spyOn(component['searchService'], 'contentSearch').and.returnValue(of ([]));
+    spyOn<any>(component['searchService'], 'contentSearch').and.returnValue(of ([]));
     component['fetchCourses']();
     expect(component.courseList.length).toEqual(0);
   });

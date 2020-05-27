@@ -24,7 +24,7 @@ import { ActivatedRoute } from '@angular/router';
 import { DeviceDetectorService } from 'ngx-device-detector';
 
 // Following describe method is for 'PREVIEW' scenario
-describe('ContentUploaderComponent', () => {
+describe('ContentUploaderComponent', async() => {
   let component: ContentUploaderComponent;
   let fixture: ComponentFixture<ContentUploaderComponent>;
   let debugElement: DebugElement;
@@ -106,7 +106,7 @@ describe('ContentUploaderComponent', () => {
     .compileComponents();
   }));
 
-  beforeEach(() => {
+  beforeEach(async() => {
     fixture = TestBed.createComponent(ContentUploaderComponent);
     component = fixture.componentInstance;
     debugElement = fixture.debugElement;
@@ -118,8 +118,9 @@ describe('ContentUploaderComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should not execute saveContent if Mandatory Form-fields are empty', () => {
+  it('should not execute saveContent if Mandatory Form-fields are empty', async() => {
     component.ngOnInit();
+    fixture.detectChanges();
     debugElement
       .query(By.css('#saveContent'))
       .triggerEventHandler('click', null);
@@ -127,7 +128,7 @@ describe('ContentUploaderComponent', () => {
       expect(component.contentDetailsForm.get('bloomslevel').errors.required).toBeTruthy();
   });
 
-  it('should execute saveContent after successful validation of Form without calling sendForReview', () => {
+  it('should execute saveContent after successful validation of Form without calling sendForReview', async() => {
     component.contentDetailsForm.get('bloomslevel').patchValue([{bloomslevel: 'Knowledge (Remembering)'}]);
     component.editTitle = 'Explanation Content Test1';
      fixture.detectChanges();
@@ -138,8 +139,10 @@ describe('ContentUploaderComponent', () => {
      expect(component.sendForReview).not.toHaveBeenCalled();
   });
 
-  it('should execute sendForReview before successful saveContent', () => {
-    component.contentDetailsForm.get('bloomslevel').patchValue([{bloomslevel: 'Knowledge (Remembering)'}]);
+  it('should execute sendForReview before successful saveContent', async() => {
+    fixture.detectChanges();
+    component.contentDetailsForm.controls.bloomslevel.patchValue([{bloomslevel: 'Knowledge (Remembering)'}]);
+    // component.contentDetailsForm.get('bloomslevel').patchValue([{bloomslevel: 'Knowledge (Remembering)'}]);
     component.editTitle = 'Explanation Content Test1';
      fixture.detectChanges();
      spyOn(component, 'sendForReview');
@@ -152,7 +155,7 @@ describe('ContentUploaderComponent', () => {
   it('should Preview be playing, when even clicked on changeFile', () => {
     component.showUploadModal = true;
     fixture.detectChanges();
-    spyOn(component, 'showPreview');
+    spyOn<any>(component, 'showPreview');
     debugElement
     .query(By.css('#changeContent'))
     .triggerEventHandler('click', null);
@@ -162,7 +165,7 @@ describe('ContentUploaderComponent', () => {
 });
 
 // Following describe method is for fresh 'UPLOAD' scenario
-describe('ContentUploaderComponent', () => {
+describe('ContentUploaderComponent', async() => {
   let component: ContentUploaderComponent;
   let fixture: ComponentFixture<ContentUploaderComponent>;
   let debugElement: DebugElement;
@@ -256,7 +259,7 @@ describe('ContentUploaderComponent', () => {
 });
 
 // Following describe method is for 'REVIEWER' role scenario
-describe('ContentUploaderComponent', () => {
+describe('ContentUploaderComponent', async() => {
   let component: ContentUploaderComponent;
   let fixture: ComponentFixture<ContentUploaderComponent>;
   let debugElement: DebugElement;

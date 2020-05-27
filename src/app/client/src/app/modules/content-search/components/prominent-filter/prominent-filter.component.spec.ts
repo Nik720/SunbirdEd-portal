@@ -88,7 +88,7 @@ describe('ProminentFilterComponent', () => {
      resourceService._languageSelected.next({value: 'en', label: 'English', dir: 'ltr'});
     spyOn(cacheService, 'get').and.returnValue(undefined);
     spyOn(cacheService, 'set').and.returnValue(undefined);
-    spyOn(component.prominentFilter, 'emit').and.returnValue([]);
+    spyOn<any>(component.prominentFilter, 'emit').and.returnValue([]);
     component.ngOnInit();
     expect(component.formFieldProperties).toBeDefined();
     expect(component.prominentFilter.emit).toHaveBeenCalledWith([]);

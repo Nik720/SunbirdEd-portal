@@ -31,7 +31,7 @@ describe('ReportService', () => {
   it('should fetchDataSource', (done) => {
     usageService = TestBed.get(UsageService);
     const filePath = '/reports/sunbird/sunbird.csv';
-    spyOn(usageService, 'getData').and.returnValue(of({ result: {} }));
+    spyOn<any>(usageService, 'getData').and.returnValue(of({ result: {} }));
     reportService.fetchDataSource(filePath).subscribe(res => {
       expect(usageService.getData).toHaveBeenCalled();
       expect(usageService.getData).toHaveBeenCalledWith(filePath);
@@ -43,7 +43,7 @@ describe('ReportService', () => {
   it('should fetchReportById', (done) => {
     baseReportService = TestBed.get(BaseReportService);
     const reportId = '1234-5678';
-    spyOn(baseReportService, 'get').and.returnValue(of({ result: {} }));
+    spyOn<any>(baseReportService, 'get').and.returnValue(of({ result: {} }));
     reportService.fetchReportById(reportId).subscribe(res => {
       expect(res).toBeDefined();
       expect(baseReportService.get).toHaveBeenCalled();
@@ -59,7 +59,7 @@ describe('ReportService', () => {
     const filters = {
       slug: ['tn']
     };
-    spyOn(baseReportService, 'post').and.returnValue(of({ result: {} }));
+    spyOn<any>(baseReportService, 'post').and.returnValue(of({ result: {} }));
     reportService.listAllReports(filters).subscribe(res => {
       expect(res).toBeDefined();
       expect(baseReportService.post).toHaveBeenCalled();
