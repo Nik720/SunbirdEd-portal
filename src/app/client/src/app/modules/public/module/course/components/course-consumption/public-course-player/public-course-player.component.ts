@@ -1,6 +1,6 @@
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as _ from 'lodash-es';
 import {
@@ -51,6 +51,7 @@ export class PublicCoursePlayerComponent implements OnInit, OnDestroy, AfterView
 
   public unsubscribe = new Subject<void>();
   public showJoinTrainingModal = false;
+  @ViewChild('joinTrainingModal') joinTrainingModal;
   constructor(public activatedRoute: ActivatedRoute, private configService: ConfigService,
     private courseConsumptionService: CourseConsumptionService,
     public router: Router,
@@ -106,6 +107,9 @@ export class PublicCoursePlayerComponent implements OnInit, OnDestroy, AfterView
   }
 
   ngOnDestroy() {
+    if (this.joinTrainingModal && this.joinTrainingModal.deny) {
+      this.joinTrainingModal.deny();
+    }
     this.unsubscribe.next();
     this.unsubscribe.complete();
   }

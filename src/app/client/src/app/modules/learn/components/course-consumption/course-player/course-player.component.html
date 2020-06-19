@@ -88,7 +88,7 @@
 
 <router-outlet></router-outlet>
 <sui-modal [mustScroll]="true" [isClosable]="true" [transitionDuration]="0" [size]="'small'" class="sb-modal"
-  appBodyScroll (dismissed)="closeJoinTrainingModal()" *ngIf="showJoinTrainingModal">
+  appBodyScroll (dismissed)="closeJoinTrainingModal()" *ngIf="showJoinTrainingModal" #joinTrainingModal>
   <!--Header-->
   <div class="sb-modal-header">
     {{resourceService?.frmelmnts?.btn?.enroll}}

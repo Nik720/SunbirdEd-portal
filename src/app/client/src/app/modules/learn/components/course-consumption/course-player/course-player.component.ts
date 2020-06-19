@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { TocCardType } from '@project-sunbird/common-consumption';
 import { CoursesService, PermissionService, UserService } from '@sunbird/core';
@@ -60,6 +60,7 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
   contentInteract: IInteractEventEdata;
   startInteract: IInteractEventEdata;
   continueInteract: IInteractEventEdata;
+  @ViewChild('joinTrainingModal') joinTrainingModal;
 
   constructor(
     public activatedRoute: ActivatedRoute,
@@ -208,6 +209,9 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    if (this.joinTrainingModal && this.joinTrainingModal.deny) {
+      this.joinTrainingModal.deny();
+    }
     this.unsubscribe.next();
     this.unsubscribe.complete();
   }
