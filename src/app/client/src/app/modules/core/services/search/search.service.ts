@@ -229,6 +229,7 @@ export class SearchService {
       data: {
         request: {
           filters: requestParam.filters,
+          fields: requestParam.fields || [],
           offset: (requestParam.pageNumber - 1) * requestParam.limit,
           limit: requestParam.limit,
           query: requestParam.query,
@@ -375,6 +376,9 @@ export class SearchService {
     };
     if (request.frameworkId) {
       option.params.framework = request.frameworkId;
+    }
+    if (request.fields) {
+      option['fields'] = request.fields;
     }
     return option;
   }

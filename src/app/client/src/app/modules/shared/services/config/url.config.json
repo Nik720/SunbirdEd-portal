@@ -6,17 +6,23 @@
     "LibrarySearchField": [
       "name",
       "appIcon",
-      "mimeType",
       "gradeLevel",
-      "identifier",
       "medium",
-      "pkgVersion",
       "board",
       "subject",
       "resourceType",
       "contentType",
-      "channel",
       "organisation"
+    ],
+    "CourseSearchField": [
+      "name",
+      "appIcon",
+      "medium",
+      "subject",
+      "resourceType",
+      "contentType",
+      "organisation",
+      "topic"
     ],
     "programSearch": {
       "fields": "rootOrgId,rootOrgName"
