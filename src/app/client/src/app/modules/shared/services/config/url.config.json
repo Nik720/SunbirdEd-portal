@@ -6,6 +6,7 @@
     "LibrarySearchField": [
       "name",
       "appIcon",
+      "mimeType",
       "gradeLevel",
       "medium",
       "board",
