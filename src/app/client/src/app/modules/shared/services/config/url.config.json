@@ -17,6 +17,7 @@
     ],
     "CourseSearchField": [
       "name",
+      "mimeType",
       "appIcon",
       "medium",
       "subject",
