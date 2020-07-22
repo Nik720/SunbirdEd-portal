@@ -81,3 +81,8 @@ export interface IGroupMember {
   id?: string;
 }
 
+export enum EActivityTypes {
+  COURSES = 'courses',
+  TEXTBOOKS = 'textbooks'
+}
+

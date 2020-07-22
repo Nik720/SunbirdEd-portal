@@ -58,7 +58,10 @@ export class ActivityListComponent implements OnInit, OnDestroy {
 
   getActivities() {
     this.showLoader = false;
-    this.activityList =  this.groupData.activities.map(item => item.activityInfo);
+    const actList = _.omit(_.groupBy(_.get(this.groupData, 'activities'), 'type'), ['undefined']);
+    for (const [key, activities] of Object.entries(actList)) {
+      _.map(activities, (item) => this.activityList.push(item.activityInfo));
+    }
   }
 
   openActivity(event: any, activity: IActivity) {
@@ -67,8 +70,10 @@ export class ActivityListComponent implements OnInit, OnDestroy {
 
     if (_.get(this.groupData, 'isAdmin')) {
       this.router.navigate([`${ACTIVITY_DETAILS}`, activity.identifier], { relativeTo: this.activateRoute });
-    } else {
+    } else if (event.data.contentType === 'Course') {
       this.router.navigate(['/learn/course', activity.identifier]);
+    } else {
+      this.router.navigate(['/resources/play/collection', activity.identifier]);
     }
   }
 

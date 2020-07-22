@@ -25,7 +25,11 @@
                 <span *ngIf="collectionTreeNodes?.data?.gradeLevel">{{collectionTreeNodes?.data?.gradeLevel}}</span>
               </div>
             </div>
-            <div class="d-flex flex-ai-end flex-w-wrap content-header__buttons">
+            <div class="d-flex flex-ai-end flex-w-wrap content-header__buttons" *ngIf="showAddGroup">
+              <button class="sb-btn sb-btn-secondary sb-btn-normal ml-auto textbook__addbtn"
+                (click)="addActivityToGroup();">{{resourceService?.frmelmnts?.lbl?.AddtoGroup}}</button>
+            </div>
+            <div class="d-flex flex-ai-end flex-w-wrap content-header__buttons" *ngIf="!showAddGroup">
               <button type="button" *ngIf="!isCopyAsCourseClicked" (click)="onShareLink();sharelinkModal=true;" class="sb-btn sb-btn-normal sb-btn-outline-primary mr-8">
                 <i class="blue share alternate icon"></i> {{resourceService?.frmelmnts?.lbl?.share}}
               </button>

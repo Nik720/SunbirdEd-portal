@@ -9,6 +9,7 @@ import { IPagination } from '../../../../shared/interfaces/index';
 import { CacheService } from 'ng2-cache-service';
 import { GroupsService } from '../../../services/groups/groups.service';
 import { IImpressionEventInput } from '@sunbird/telemetry';
+import { EActivityTypes } from '../../../interfaces/group';
 
 @Component({
   selector: 'app-activity-search',
@@ -40,6 +41,8 @@ export class ActivitySearchComponent implements OnInit, OnDestroy {
   public slugForProminentFilter = (<HTMLInputElement>document.getElementById('slugForProminentFilter')) ?
     (<HTMLInputElement>document.getElementById('slugForProminentFilter')).value : null;
   orgDetailsFromSlug = this.cacheService.get('orgDetailsFromSlug');
+  activityType: string;
+  filterAction: string;
   constructor(
     public resourceService: ResourceService,
     public configService: ConfigService,
@@ -57,26 +60,22 @@ export class ActivitySearchComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.filterType = this.configService.appConfig.courses.filterType;
     this.groupData = this.groupsService.groupData;
     this.groupId = _.get(this.activatedRoute, 'snapshot.params.groupId');
+    this.activityType = _.get(this.activatedRoute, 'snapshot.params.activityType');
     this.paginationDetails = this.paginationService.getPager(0, 1, this.configService.appConfig.SEARCH.PAGE_LIMIT);
     this.getFrameworkId();
-    this.getFrameWork().pipe(first()).subscribe(framework => {
-      this.initFilters = true;
-      this.frameWorkName = framework;
-      if (this.userService._isCustodianUser && this.orgDetailsFromSlug) {
-        if (_.get(this.orgDetailsFromSlug, 'slug') === this.slugForProminentFilter) {
-          this.showFilters = false;
-        }
+    this.getFrameWork();
+    this.initFilters = true;
+    if (this.userService._isCustodianUser && this.orgDetailsFromSlug) {
+      if (_.get(this.orgDetailsFromSlug, 'slug') === this.slugForProminentFilter) {
+        this.showFilters = false;
       }
-      this.dataDrivenFilters = {};
-      this.fetchContentOnParamChange();
-      this.setNoResultMessage();
-      this.telemetryImpression = this.groupsService.getImpressionObject(this.activatedRoute.snapshot, this.router.url);
-    }, error => {
-      this.toasterService.error(this.resourceService.messages.fmsg.m0002);
-    });
+    }
+    this.dataDrivenFilters = {};
+    this.fetchContentOnParamChange();
+    this.setNoResultMessage();
+    this.telemetryImpression = this.groupsService.getImpressionObject(this.activatedRoute.snapshot, this.router.url);
   }
 
   private fetchContentOnParamChange() {
@@ -87,7 +86,10 @@ export class ActivitySearchComponent implements OnInit, OnDestroy {
           this.showLoader = true;
           // TODO set telemetry here
         }),
-        map((result) => ({ params: { pageNumber: Number(result[0].pageNumber) }, queryParams: result[1], group: result[2] })),
+        map((result) => ({
+          params: { pageNumber: Number(result[0].pageNumber), activityType: result[0].activityType },
+          queryParams: result[1], group: result[2]
+        })),
         takeUntil(this.unsubscribe$))
       .subscribe(({ params, queryParams, group }) => {
         const user = _.find(_.get(group, 'members'), (m) => _.get(m, 'userId') === this.userService.userid);
@@ -101,7 +103,15 @@ export class ActivitySearchComponent implements OnInit, OnDestroy {
           this.queryParams = { ...queryParams };
           this.paginationDetails.currentPage = params.pageNumber;
           this.contentList = [];
-          this.fetchContents();
+          if (params.activityType === 'courses') {
+            this.filterType = this.configService.appConfig.courses.filterType;
+            this.filterAction = 'filter';
+            this.fetchCourse();
+          } else {
+            this.filterType = this.configService.appConfig.library.filterType;
+            this.filterAction = 'search';
+            this.fetchContent();
+          }
         }
       });
   }
@@ -143,25 +153,74 @@ export class ActivitySearchComponent implements OnInit, OnDestroy {
   }
 
   private getFrameWork() {
-    const formServiceInputParams = {
-      formType: 'framework',
-      formAction: 'search',
-      contentType: 'framework-code',
-    };
-    return this.formService.getFormConfig(formServiceInputParams)
-      .pipe(map((data) => {
-        const frameWork = _.find(data, 'framework').framework;
-        return frameWork;
-      }), catchError((error) => {
-        return of(false);
-      }));
+    if (this.activityType === EActivityTypes.COURSES) {
+      const formServiceInputParams = {
+        formType: 'framework',
+        formAction: 'search',
+        contentType: 'framework-code',
+      };
+      this.formService.getFormConfig(formServiceInputParams).pipe(first()).subscribe((data) => {
+        this.frameWorkName = _.find(data, 'framework').framework;
+      }, (error) => {
+        this.toasterService.error(this.resourceService.messages.fmsg.m0002);
+      });
+    } else {
+      this.userService.userData$.subscribe(userData => {
+        if (userData && !userData.err) {
+            this.frameWorkName = _.get(userData.userProfile, 'framework.id');
+        }
+      });
+    }
   }
 
-  private fetchContents() {
+  private fetchCourse() {
+    const option = this.buildOptions();
+    this.searchService.courseSearch(option)
+      .subscribe(data => {
+        this.showLoader = false;
+        this.facetsList = this.searchService.processFilterData(_.get(data, 'result.facets'));
+        this.paginationDetails = this.paginationService.getPager(data.result.count, this.paginationDetails.currentPage,
+          this.configService.appConfig.SEARCH.PAGE_LIMIT);
+        const { constantData, metaData, dynamicFields } = this.configService.appConfig.CoursePageSection.course;
+        this.contentList = _.map(data.result.course, (content: any) =>
+          this.utilService.processContent(content, constantData, dynamicFields, metaData));
+      }, err => {
+        this.showLoader = false;
+        this.contentList = [];
+        this.facetsList = [];
+        this.paginationDetails = this.paginationService.getPager(0, this.paginationDetails.currentPage,
+          this.configService.appConfig.SEARCH.PAGE_LIMIT);
+        this.toasterService.error(this.resourceService.messages.fmsg.m0051);
+      });
+  }
+
+  private fetchContent() {
+    const option = this.buildOptions();
+    this.searchService.contentSearch(option)
+    .subscribe(data => {
+      this.showLoader = false;
+      this.facetsList = this.searchService.processFilterData(_.get(data, 'result.facets'));
+      this.paginationDetails = this.paginationService.getPager(data.result.count, this.paginationDetails.currentPage,
+        this.configService.appConfig.SEARCH.PAGE_LIMIT);
+      const { constantData, metaData, dynamicFields } = this.configService.appConfig.CoursePageSection.course;
+      this.contentList = _.map(data.result.content, (content: any) =>
+        this.utilService.processContent(content, constantData, dynamicFields, metaData));
+    }, err => {
+      this.showLoader = false;
+      this.contentList = [];
+      this.facetsList = [];
+      this.paginationDetails = this.paginationService.getPager(0, this.paginationDetails.currentPage,
+        this.configService.appConfig.SEARCH.PAGE_LIMIT);
+      this.toasterService.error(this.resourceService.messages.fmsg.m0051);
+    });
+  }
+
+  private buildOptions() {
     let filters = _.pickBy(this.queryParams, (value: Array<string> | string) => value && value.length);
     filters = _.omit(filters, ['key', 'sort_by', 'sortType', 'appliedFilters']);
     const option: any = {
       filters: filters,
+      fields: this.configService.urlConFig.params.LibrarySearchField,
       limit: this.configService.appConfig.SEARCH.PAGE_LIMIT,
       pageNumber: this.paginationDetails.currentPage,
       facets: this.facets,
@@ -181,23 +240,14 @@ export class ActivitySearchComponent implements OnInit, OnDestroy {
     if (this.frameWorkName) {
       option.params.framework = this.frameWorkName;
     }
-    this.searchService.courseSearch(option)
-      .subscribe(data => {
-        this.showLoader = false;
-        this.facetsList = this.searchService.processFilterData(_.get(data, 'result.facets'));
-        this.paginationDetails = this.paginationService.getPager(data.result.count, this.paginationDetails.currentPage,
-          this.configService.appConfig.SEARCH.PAGE_LIMIT);
-        const { constantData, metaData, dynamicFields } = this.configService.appConfig.CoursePageSection.course;
-        this.contentList = _.map(data.result.course, (content: any) =>
-          this.utilService.processContent(content, constantData, dynamicFields, metaData));
-      }, err => {
-        this.showLoader = false;
-        this.contentList = [];
-        this.facetsList = [];
-        this.paginationDetails = this.paginationService.getPager(0, this.paginationDetails.currentPage,
-          this.configService.appConfig.SEARCH.PAGE_LIMIT);
-        this.toasterService.error(this.resourceService.messages.fmsg.m0051);
-      });
+
+    if (this.activityType === EActivityTypes.TEXTBOOKS && _.get(this.userService, 'userProfile.framework')) {
+      const userFrameWork = _.pick(this.userService.userProfile.framework, ['medium', 'gradeLevel', 'board', 'subject']);
+      option.filters = { ...option.filters, ...userFrameWork, };
+      option.filters.contentType = ['TextBook'];
+      option.params.framework = _.get(this.userService, 'userProfile.framework.id') || this.frameWorkName;
+    }
+    return option;
   }
 
   public navigateToPage(page: number): void {
@@ -222,7 +272,11 @@ export class ActivitySearchComponent implements OnInit, OnDestroy {
   addActivity(event) {
     const cdata = [{id: _.get(event, 'data.identifier'), type: 'Course'}];
     this.addTelemetry('activity-course-card', cdata);
-    this.router.navigate(['/learn/course', _.get(event, 'data.identifier')], { queryParams: { groupId: _.get(this.groupData, 'id') } });
+    if (this.activityType === EActivityTypes.COURSES) {
+      this.router.navigate(['/learn/course', _.get(event, 'data.identifier')], { queryParams: { groupId: _.get(this.groupData, 'id') } });
+    } else if (this.activityType === EActivityTypes.TEXTBOOKS) {
+      this.router.navigate(['/resources/play/collection/', _.get(event, 'data.identifier')], { queryParams: { groupId: _.get(this.groupData, 'id') } });
+    }
   }
 
   addTelemetry(id, cdata, extra?) {

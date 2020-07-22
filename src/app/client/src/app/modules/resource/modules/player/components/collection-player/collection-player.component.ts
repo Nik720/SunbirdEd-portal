@@ -1,5 +1,5 @@
 
-import { mergeMap, filter, map, catchError } from 'rxjs/operators';
+import { mergeMap, filter, map, catchError, takeUntil } from 'rxjs/operators';
 import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { PlayerService, CollectionHierarchyAPI, PermissionService, CopyContentService, UserService } from '@sunbird/core';
 import { Observable, Subscription, Subject } from 'rxjs';
@@ -13,6 +13,7 @@ import { IInteractEventObject, IInteractEventEdata, IImpressionEventInput, IEndE
 import * as TreeModel from 'tree-model';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { PopupControlService } from '../../../../../../service/popup-control.service';
+import { GroupsService } from '../../../../../groups/services/groups/groups.service';
 
 @Component({
   selector: 'app-collection-player',
@@ -134,6 +135,8 @@ export class CollectionPlayerComponent implements OnInit, OnDestroy, AfterViewIn
   isCopyAsCourseClicked: Boolean =  false;
   selectAll: Boolean = false;
   selectedItems = [];
+  showAddGroup: Boolean = false;
+  groupId;
 
   constructor(public route: ActivatedRoute, playerService: PlayerService,
     windowScrollService: WindowScrollService, router: Router, public navigationHelperService: NavigationHelperService,
@@ -141,7 +144,7 @@ export class CollectionPlayerComponent implements OnInit, OnDestroy, AfterViewIn
     public permissionService: PermissionService, public copyContentService: CopyContentService,
     public contentUtilsServiceService: ContentUtilsServiceService, config: ConfigService, private configService: ConfigService,
     public popupControlService: PopupControlService, public navigationhelperService: NavigationHelperService,
-    public externalUrlPreviewService: ExternalUrlPreviewService, public userService: UserService) {
+    public externalUrlPreviewService: ExternalUrlPreviewService, public userService: UserService, private groupsService: GroupsService) {
     this.playerService = playerService;
     this.windowScrollService = windowScrollService;
     this.router = router;
@@ -164,6 +167,12 @@ export class CollectionPlayerComponent implements OnInit, OnDestroy, AfterViewIn
     this.dialCode = _.get(this.route, 'snapshot.queryParams.dialCode');
     this.contentType = _.get(this.route, 'snapshot.queryParams.contentType');
     this.contentData = this.getContent();
+    this.groupId = _.get(this.route, 'snapshot.queryParams.groupId') || '';
+    if (this.groupId) {
+      this.getGroupData();
+    } else {
+      this.showAddGroup = false;
+    }
   }
 
   onShareLink() {
@@ -637,6 +646,41 @@ export class CollectionPlayerComponent implements OnInit, OnDestroy, AfterViewIn
     } else if (_.get(event, 'selectAll') === false) {
       this.selectedItems = [];
     }
+  }
+
+  getGroupData() {
+    this.groupsService.getGroupById(this.groupId, true, true).pipe(takeUntil(this.unsubscribe$)).subscribe(groupData => {
+      this.groupsService.groupData = _.cloneDeep(groupData);
+      this.showAddGroup = _.get(this.groupsService.addGroupFields(groupData), 'isAdmin');
+    }, err => {
+      this.showAddGroup = false;
+      this.toasterService.error(this.resourceService.messages.emsg.m002);
+    });
+  }
+
+  addActivityToGroup() {
+    const isActivityAdded = _.find(_.get(this.groupsService, 'groupData.activities'), {id: this.collectionId});
+    if (_.get(this.groupsService, 'groupData.isAdmin') && _.isEmpty(isActivityAdded)) {
+      const request = {
+        activities: [{ id: this.collectionId, type: 'TextBook' }]
+      };
+      this.groupsService.addActivities(this.groupId, request).subscribe(response => {
+        this.goBack();
+        this.toasterService.success(this.resourceService.messages.imsg.activityAddedSuccess);
+      }, error => {
+        console.error('Error while adding activity to the group', error);
+        this.goBack();
+        this.toasterService.error(this.resourceService.messages.stmsg.activityAddFail);
+      });
+    } else {
+      this.goBack();
+      isActivityAdded ? this.toasterService.error(this.resourceService.messages.emsg.activityAddedToGroup) :
+      this.toasterService.error(this.resourceService.messages.emsg.noAdminRole);
+    }
+  }
+
+  goBack() {
+    this.navigationHelperService.goBack();
   }
 }
 

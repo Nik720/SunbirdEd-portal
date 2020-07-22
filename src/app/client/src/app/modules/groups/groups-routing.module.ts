@@ -46,7 +46,7 @@ const routes: Routes = [
     },
   },
   {
-    path: `${WORKSPACE.GROUP_ID}/${ADD_ACTIVITY_TO_GROUP}/${COURSES}/:pageNumber`, component: ActivitySearchComponent,
+    path: `${WORKSPACE.GROUP_ID}/${ADD_ACTIVITY_TO_GROUP}/:activityType/:pageNumber`, component: ActivitySearchComponent,
     data: {
       telemetry: { env: telemetryEnv, pageid: ADD_ACTIVITY_TO_GROUP, type: type, subtype: subtype },
     },
