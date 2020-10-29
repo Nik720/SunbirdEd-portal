@@ -4,6 +4,7 @@ const dateFormat = require('dateformat')
 const uuidv1 = require('uuid/v1')
 const blobService = azure.createBlobService(envHelper.sunbird_azure_account_name, envHelper.sunbird_azure_account_key);
 const { logger } = require('@project-sunbird/logger');
+const path = require("path");
 
 const getGeneralisedResourcesBundles = (req, res) => {
     const container = envHelper.sunbird_azure_resourceBundle_container_name;
@@ -37,6 +38,79 @@ const getGeneralisedResourcesBundles = (req, res) => {
     });
 }
 
+const uploadGeneraliseLables = (req, res) => {
+    try {
+        const filesFolder = path.join(__dirname, "/./../../resourcebundles/generalise-lables/");
+        fs.readdir(filesFolder, (err, files) => {
+            if(err) throw err ;
+            for (const file of files) {
+                console.log(file);
+            }
+        })
+        // blobService.createBlockBlobFromLocalFile('label',  `${blobFolderName}/${name}`, (error) => {
+        //     if (error && error.statusCode === 403) {
+        //         const response = {
+        //             responseCode: "FORBIDDEN",
+        //             params: {
+        //             err: "FORBIDDEN",
+        //             status: "failed",
+        //             errmsg: "Unable to authorize to azure blob"
+        //             },
+        //             result: req.file
+        //         }
+        //         logger.error({
+        //             msg: 'Unable to authorize to azure blob for uploading desktop crash logs',
+        //             error: error
+        //         });
+        //         return res.status(403).send(apiResponse(response));
+        //     } else if (error) {
+        //         const response = {
+        //             responseCode: "SERVER_ERROR",
+        //             params: {
+        //             err: "SERVER_ERROR",
+        //             status: "failed",
+        //             errmsg: "Failed to upload to blob"
+        //             },
+        //             result: {}
+        //         }
+        //         logger.error({
+        //             msg: 'Failed to upload desktop crash logs to blob',
+        //             error: error
+        //         });
+        //         return res.status(500).send(apiResponse(response));
+        //     } else {
+        //         const response = {
+        //             responseCode: "OK",
+        //             params: {
+        //             err: null,
+        //             status: "success",
+        //             errmsg: null
+        //             },
+        //             result: {
+        //             'message': 'Successfully uploaded to blob'
+        //             }
+        //         }
+        //         return res.status(200).send(apiResponse(response));
+        //     }
+        // });
+    } catch (error) {
+        const response = {
+            responseCode: "SERVER_ERROR",
+            params: {
+            err: "SERVER_ERROR",
+            status: "failed",
+            errmsg: "Failed to upload to blob"
+            },
+            result: {}
+        }
+        logger.error({
+            msg: 'Failed to upload desktop crash logs to blob',
+            error: error
+        });
+        return res.status(500).send(apiResponse(response));
+    }
+}
+
 const apiResponse = ({ responseCode, result, params: { err, errmsg, status } }) => {
     return {
         'id': 'api.report',
@@ -55,5 +129,6 @@ const apiResponse = ({ responseCode, result, params: { err, errmsg, status } }) 
 }
 
 module.exports = {
-    getGeneralisedResourcesBundles
+    getGeneralisedResourcesBundles,
+    uploadGeneraliseLables
 }
