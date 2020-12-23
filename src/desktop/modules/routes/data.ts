@@ -10,6 +10,7 @@ import Tenant from "./../controllers/tenant";
 import { manifest } from "./../manifest";
 const proxy = require('express-http-proxy');
 import Response from "./../utils/response";
+import { containerAPI } from "@project-sunbird/OpenRAP/api";
 
 export default (app, proxyURL) => {
     const content = new Content(manifest);
@@ -22,32 +23,39 @@ export default (app, proxyURL) => {
     const faqs = new Faqs(manifest);
     app.get("/api/faqs/v1/read/:language", faqs.read.bind(faqs));
     
-
     const tenant = new Tenant();
+    const settingSDK = containerAPI.getSettingSDKInstance(manifest.id);
     app.get(
         ["/v1/tenant/info/", "/v1/tenant/info/:id"],
-        (req, res, next) => {
-            logger.debug(
-                `Received API call to get tenant data ${_.upperCase(
-                    _.get(req, "params.id"),
-                )}`,
-            );
-
-            logger.debug(`ReqId = "${req.headers["X-msgid"]}": Check proxy`);
-            if (enableProxy(req)) {
-                logger.info(`Proxy is Enabled `);
-                next();
-            } else {
-                logger.debug(`ReqId = "${req.headers["X-msgid"]}": Get tenant Info`);
-                tenant.get(req, res);
-                return;
-            }
-        },
         proxy(proxyURL, {
             proxyReqPathResolver(req) {
                 return `/v1/tenant/info/`;
             },
+            proxyErrorHandler: function (err, res, next) {
+                logger.warn(`While getting tenant info from online`, err);
+                next();
+            },
+            userResDecorator: function (proxyRes, proxyResData) {
+                return new Promise(async function (resolve) {
+                    try {
+                        const formResp = JSON.parse(proxyResData.toString('utf8'));
+                        await settingSDK.put(`desktop_tenant_info`, formResp);
+                    } catch (error) {
+                        logger.error(`Unable to parse or do DB update of  tenant info after fetching from online`, error)
+                    }
+                    resolve(proxyResData);
+                });
+            }
         }),
+        async (req, res) => {
+            logger.debug(`Received API call to get tenant info`);
+            logger.debug(`ReqId = "${req.headers["X-msgid"]}": Check proxy`);
+            let tenantInfo = await settingSDK.get(`desktop_tenant_info`);
+            if(!tenantInfo) {
+                return tenant.get(req, res);
+            }
+            return tenantInfo;
+        }
     );
 
     const location = new Location(manifest);
