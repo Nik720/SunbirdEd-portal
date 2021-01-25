@@ -167,6 +167,7 @@ module.exports = function (app) {
     proxyReqPathResolver: proxyReqPathResolverMethod
   }))
 }
+
 const userResDecorator = (proxyRes, proxyResData, req, res) => {
   try {
       const data = JSON.parse(proxyResData.toString('utf8'));
